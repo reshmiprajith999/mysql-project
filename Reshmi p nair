@@ -1,0 +1,97 @@
+drop database library;
+create database library;
+use library;
+create table branch(branch_no int primary key,manager_id int,branch_address varchar(30),contact_no decimal);
+insert into branch values(1,10,'main st','46465775');
+insert into branch values(2,11,'boston','879799897');
+insert into  branch values(7, 12, 'wall St', '9887876565');
+insert into branch values (8, 13, ' Maple St', '2343454539');
+
+create table employee(emp_id int primary key,emp_name varchar(30),position varchar(30),salary decimal);
+insert into employee values(1,'john','manager','50000');
+insert into employee values(2,'diya','assistant','45000');
+insert into employee values(7,'palmero','librariam','28000');
+insert into employee values(8,'tamayo','manager','50000');
+
+create table customer(customer_id int primary key,customer_name varchar(30),customer_address varchar(30),reg_date date);
+insert into customer values(5,'autero','123 main st','2023-01-01');
+insert into customer values(6,'alice','124 main st','2021-02-08');
+insert into customer values(9,'parker','maple st','2022-03-04');
+insert into customer values(10,'benjamin','wall st','2019-07-01');
+
+create table books(ISBN varchar(30) primary key,book_title varchar(30),catagorey varchar(30),rental_price decimal(10,2), status varchar(30), check(status in('yes','no')),author varchar(30),publisher varchar(30));
+insert into books values('978-0-13-516630-2','introduction to python ','programming',19.99,'yes','adam','tech publications');
+insert into books values('978-1-23-456789-0','basics of mysql','data science',24.99,'no','monica','green books');
+insert into books values('673-2-33-874532-1','world of analytics','analytics','33.23','yes','alison','book house');
+insert into books values('324-3-45-424567-3','deep learning','data science','56.45','yes', 'maxwell','tech publication');
+
+CREATE TABLE issuestatus (
+    issue_id INT PRIMARY KEY,
+    issued_cust INT,
+    issued_book_name VARCHAR(30),
+    issue_date DATE,
+    isbn_books VARCHAR(30), -- Corrected column name
+    FOREIGN KEY (issued_cust) REFERENCES customer(customer_id),
+    FOREIGN KEY (isbn_books) REFERENCES books(isbn) 
+);
+  insert into issuestatus values(1, 5, 'introduction to python ', '2023-01-15', '978-0-13-516630-2');
+  insert into issuestatus values(2, 6, 'basics of mysql', '2023-03-16', '978-1-23-456789-0');
+
+  CREATE TABLE returnstatus(
+  return_id int primary key,
+  return_cust int,
+  return_book_name varchar(30),
+  return_date date,
+  isbn_books2 varchar(30),
+  foreign key(isbn_books2) references books(isbn)
+  );
+insert into returnstatus values(1, 2, 'basics of mysql', '2023-01-16','978-1-23-456789-0' );
+insert into returnstatus values(2, 3, 'introduction to python', '2023-01-16','978-0-13-516630-2' );
+insert into returnstatus values(3,4,'world of analytics','2023-08-12','673-2-33-874532-1');
+insert into returnstatus values(4,5,'deep learning','2023-06-04','324-3-45-424567-3');
+
+SELECT book_title, catagorey, rental_price FROM books 
+where status='yes';
+
+SELECT emp_name, salary FROM employee ORDER BY salary DESC;
+
+
+select catagorey,count(*) as total_count
+from books
+group by catagorey;
+
+select emp_name,position from employee where salary>50000;
+select c.customer_name
+from customer as c
+left join issuestatus as i on c.customer_id=i.issued_cust
+where c.reg_date<'2022-01-01' and i.issue_id is null;
+
+select b.branch_no,count(*) as total_employee
+from branch as b
+join employee as e on b.manager_id=e.emp_id
+group by b.branch_no;
+
+select c.customer_name
+from customer as c
+join issuestatus as i on c.customer_id=i.issued_cust
+where i.issue_date>='2023-06-01' and i.issue_date<'2023-07-01';
+ select book_title
+from books
+ where catagorey like '%history%';
+
+ select b.branch_no,count(*) as total_employee
+ from branch as b
+ join employee as e on b.manager_id=e.emp_id
+ group by b.branch_no
+ having total_employee>5;
+ 
+ 
+SELECT
+    b.book_title AS book_title,
+    c.customer_name
+FROM
+    books b
+JOIN
+    issuestatus i ON b.books_id = i.books_id
+JOIN
+    customer c ON i.customer_id = c.customer_id;
